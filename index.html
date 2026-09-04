@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<title>GR Loja</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b0d12;color:#f7f7f7}
+:root{--card:#151820;--card2:#1d212b;--muted:#9aa1ae;--line:#2a303c;--blue:#2f80ff;--green:#22c55e;--red:#ef4444}
+body{min-height:100vh;padding-bottom:92px}
+.top{position:sticky;top:0;z-index:10;background:rgba(11,13,18,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:18px 18px 14px}
+.brand{font-weight:900;font-size:24px}.store{color:var(--muted);font-size:13px;margin-top:4px}
+.wrap{max-width:760px;margin:auto;padding:18px}
+.search{width:100%;background:var(--card);border:1px solid var(--line);color:#fff;padding:15px;border-radius:16px;font-size:16px;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column}
+.photo{aspect-ratio:1/1;background:#0f1218;display:flex;align-items:center;justify-content:center;font-size:44px;overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover}
+.info{padding:13px;display:grid;gap:7px;flex:1}.name{font-weight:900;font-size:16px}.desc{font-size:12px;color:var(--muted);line-height:1.35}
+.price{font-size:18px;font-weight:900}button{font:inherit}
+.add{border:0;border-radius:13px;padding:11px;background:#fff;color:#111;font-weight:900;width:100%}
+.cartbar{position:fixed;left:0;right:0;bottom:0;background:#11141b;border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));z-index:20}
+.cartbtn{display:flex;align-items:center;justify-content:space-between;max-width:760px;margin:auto;background:var(--blue);border:0;color:#fff;padding:15px 18px;border-radius:16px;font-weight:900;width:100%}
+.badge{background:#fff;color:#111;border-radius:999px;min-width:27px;height:27px;display:inline-flex;align-items:center;justify-content:center}
+.overlay{position:fixed;inset:0;background:#0b0d12;z-index:30;overflow:auto;padding-bottom:30px}
+.overlay[hidden]{display:none}
+.head{display:flex;align-items:center;gap:12px;padding:18px;position:sticky;top:0;background:#0b0d12;border-bottom:1px solid var(--line);z-index:2}
+.back{background:none;border:0;color:#fff;font-size:25px}.head h2{margin:0}
+.cartitem{display:grid;grid-template-columns:1fr auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.qty{display:flex;align-items:center;gap:9px}.qty button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:#fff}
+.summary{background:var(--card);border:1px solid var(--line);padding:16px;border-radius:18px;margin-top:18px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0}.total{font-size:20px;font-weight:900;border-top:1px solid var(--line);margin-top:7px;padding-top:13px}
+.primary{width:100%;border:0;border-radius:15px;background:#fff;color:#111;padding:15px;font-weight:900;margin-top:16px}
+.form{display:grid;gap:13px}label{font-size:13px;font-weight:800}input,select,textarea{width:100%;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;color:#fff;font-size:16px}
+textarea{min-height:90px;resize:vertical}.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{background:var(--card);border:1px solid var(--line);padding:13px;border-radius:14px}.option input{width:auto}
+.address{display:grid;gap:12px}.address[hidden]{display:none}
+.empty{text-align:center;padding:50px 15px;color:var(--muted)}.ok{text-align:center;padding:50px 20px}.ok .icon{font-size:60px}.ok h2{font-size:28px}
+.small{font-size:12px;color:var(--muted);line-height:1.4}
+@media(max-width:430px){.grid{grid-template-columns:1fr 1fr}.name{font-size:15px}.wrap{padding:14px}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand" id="storeName">GR Loja</div>
+  <div class="store">Escolha seus produtos e faça seu pedido</div>
+</div>
+
+<main class="wrap">
+  <input class="search" id="search" placeholder="🔎 Buscar produtos...">
+  <div class="grid" id="products"></div>
+</main>
+
+<div class="cartbar">
+  <button class="cartbtn" id="openCart"><span>🛒 Ver carrinho</span><span><span class="badge" id="cartCount">0</span> &nbsp; <b id="cartTotal">R$ 0,00</b></span></button>
+</div>
+
+<section class="overlay" id="cartScreen" hidden>
+  <div class="head"><button class="back" data-close="cartScreen">←</button><h2>Seu carrinho</h2></div>
+  <div class="wrap">
+    <div id="cartItems"></div>
+    <div class="summary">
+      <div class="row"><span>Subtotal</span><b id="cartSubtotal">R$ 0,00</b></div>
+      <div class="row total"><span>Total</span><b id="cartGrandTotal">R$ 0,00</b></div>
+    </div>
+    <button class="primary" id="checkoutBtn">FINALIZAR COMPRA</button>
+  </div>
+</section>
+
+<section class="overlay" id="checkoutScreen" hidden>
+  <div class="head"><button class="back" id="backCart">←</button><h2>Finalizar pedido</h2></div>
+  <div class="wrap">
+    <div class="form">
+      <div><label>👤 Seu nome</label><input id="customerName" placeholder="Nome completo"></div>
+      <div><label>📱 WhatsApp</label><input id="whatsapp" inputmode="tel" placeholder="(64) 99999-9999"></div>
+      <div><label>📅 Dia que deseja</label><input id="requestedDate" type="date"></div>
+
+      <div>
+        <label>🚚 Como você quer receber?</label>
+        <div class="options">
+          <label class="option"><input type="radio" name="delivery" value="pickup" checked> Vou buscar</label>
+          <label class="option"><input type="radio" name="delivery" value="delivery"> Quero entrega</label>
+        </div>
+      </div>
+
+      <div class="address" id="addressFields" hidden>
+        <div><label>Rua</label><input id="street"></div>
+        <div><label>Número</label><input id="number"></div>
+        <div><label>Bairro</label><input id="neighborhood"></div>
+        <div><label>Complemento</label><input id="complement"></div>
+        <div><label>Cidade</label><input id="city"></div>
+        <div><label>Ponto de referência</label><input id="reference"></div>
+      </div>
+
+      <div><label>💳 Forma de pagamento</label>
+        <select id="payment">
+          <option value="">Selecione...</option>
+          <option>Pix</option>
+          <option>Dinheiro</option>
+          <option>Cartão</option>
+        </select>
+      </div>
+
+      <div><label>📝 Observações</label><textarea id="notes" placeholder="Ex.: sem cebola, entregar depois das 18h..."></textarea></div>
+    </div>
+
+    <div class="summary">
+      <div class="row"><span>Produtos</span><b id="checkoutItemsCount">0 item(ns)</b></div>
+      <div class="row"><span>Subtotal</span><b id="checkoutSubtotal">R$ 0,00</b></div>
+      <div class="row total"><span>Total</span><b id="checkoutTotal">R$ 0,00</b></div>
+      <div class="small" style="margin-top:8px">Se houver taxa de entrega, a loja poderá confirmar o valor com você pelo WhatsApp.</div>
+    </div>
+    <button class="primary" id="confirmOrder">CONFIRMAR PEDIDO</button>
+    <div class="small" id="orderError" style="color:#ef4444;margin-top:12px"></div>
+  </div>
+</section>
+
+<section class="overlay" id="successScreen" hidden>
+  <div class="wrap ok">
+    <div class="icon">✅</div>
+    <h2>Pedido enviado!</h2>
+    <p>Seu pedido foi enviado para a loja.</p>
+    <p class="small">Código do pedido: <b id="orderCode"></b></p>
+    <button class="primary" id="newOrder">VOLTAR PARA A LOJA</button>
+  </div>
+</section>
+
+<script>
+const SUPABASE_URL="https://kygfrtgdcnhldnovmfxp.supabase.co";
+const SUPABASE_KEY="sb_publishable_5ilrr3ijRTzXl46M6dw31g_4zYq3fgn";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const params=new URLSearchParams(location.search);
+const ownerId=params.get("loja");
+let products=[];
+let cart={};
+
+function money(v){return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function today(){const d=new Date();return d.toISOString().slice(0,10)}
+
+async function loadStore(){
+  if(!ownerId){document.getElementById("products").innerHTML='<div class="empty" style="grid-column:1/-1">Link de loja inválido.</div>';return;}
+  const {data:store}=await db.from("storefronts").select("store_name").eq("owner_id",ownerId).eq("active",true).maybeSingle();
+  if(!store){document.getElementById("products").innerHTML='<div class="empty" style="grid-column:1/-1">Esta loja não está disponível.</div>';return;}
+  document.getElementById("storeName").textContent=store.store_name||"GR Loja";
+  document.title=(store.store_name||"GR Loja")+" • Pedidos";
+  const {data,error}=await db.from("public_products").select("*").eq("owner_id",ownerId).eq("available",true).order("name");
+  if(error){document.getElementById("products").innerHTML='<div class="empty" style="grid-column:1/-1">Não foi possível carregar os produtos.</div>';return;}
+  products=data||[];
+  renderProducts();
+}
+
+function renderProducts(){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  const list=products.filter(p=>!q||p.name.toLowerCase().includes(q)||(p.description||"").toLowerCase().includes(q));
+  const box=document.getElementById("products");
+  if(!list.length){box.innerHTML='<div class="empty" style="grid-column:1/-1">Nenhum produto disponível.</div>';return;}
+  box.innerHTML=list.map(p=>`
+    <article class="card">
+      <div class="photo">${p.image?`<img src="${esc(p.image)}" alt="">`:"📦"}</div>
+      <div class="info">
+        <div class="name">${esc(p.name)}</div>
+        ${p.description?`<div class="desc">${esc(p.description)}</div>`:""}
+        <div class="price">${money(p.price)}</div>
+        <button class="add" data-add="${esc(p.source_product_id)}">ADICIONAR</button>
+      </div>
+    </article>`).join("");
+}
+
+function cartRows(){
+  return Object.entries(cart).map(([id,qty])=>{const p=products.find(x=>x.source_product_id===id);return p?{...p,qty}:null}).filter(Boolean);
+}
+function updateCart(){
+  const rows=cartRows();
+  const count=rows.reduce((s,x)=>s+x.qty,0);
+  const total=rows.reduce((s,x)=>s+Number(x.price)*x.qty,0);
+  document.getElementById("cartCount").textContent=count;
+  document.getElementById("cartTotal").textContent=money(total);
+}
+function renderCart(){
+  const rows=cartRows(),box=document.getElementById("cartItems");
+  if(!rows.length) box.innerHTML='<div class="empty">Seu carrinho está vazio.</div>';
+  else box.innerHTML=rows.map(x=>`
+    <div class="cartitem">
+      <div><b>${esc(x.name)}</b><div class="small">${money(x.price)} cada</div></div>
+      <div>
+        <div class="qty"><button data-minus="${esc(x.source_product_id)}">−</button><b>${x.qty}</b><button data-plus="${esc(x.source_product_id)}">+</button></div>
+        <div style="text-align:right;margin-top:7px"><b>${money(Number(x.price)*x.qty)}</b></div>
+      </div>
+    </div>`).join("");
+  const total=rows.reduce((s,x)=>s+Number(x.price)*x.qty,0);
+  document.getElementById("cartSubtotal").textContent=money(total);
+  document.getElementById("cartGrandTotal").textContent=money(total);
+  document.getElementById("checkoutBtn").disabled=!rows.length;
+}
+function openScreen(id){document.getElementById(id).hidden=false}
+function closeScreen(id){document.getElementById(id).hidden=true}
+
+document.getElementById("products").addEventListener("click",e=>{
+  const b=e.target.closest("[data-add]");if(!b)return;
+  const id=b.dataset.add;cart[id]=(cart[id]||0)+1;updateCart();
+});
+document.getElementById("search").addEventListener("input",renderProducts);
+document.getElementById("openCart").addEventListener("click",()=>{renderCart();openScreen("cartScreen")});
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>closeScreen(b.dataset.close)));
+document.getElementById("cartItems").addEventListener("click",e=>{
+  const plus=e.target.closest("[data-plus]"),minus=e.target.closest("[data-minus]");
+  if(plus)cart[plus.dataset.plus]=(cart[plus.dataset.plus]||0)+1;
+  if(minus){const id=minus.dataset.minus;cart[id]=Math.max(0,(cart[id]||0)-1);if(!cart[id])delete cart[id]}
+  renderCart();updateCart();
+});
+document.getElementById("checkoutBtn").addEventListener("click",()=>{
+  const rows=cartRows();if(!rows.length)return;
+  document.getElementById("checkoutItemsCount").textContent=rows.reduce((s,x)=>s+x.qty,0)+" item(ns)";
+  const total=rows.reduce((s,x)=>s+Number(x.price)*x.qty,0);
+  document.getElementById("checkoutSubtotal").textContent=money(total);
+  document.getElementById("checkoutTotal").textContent=money(total);
+  closeScreen("cartScreen");openScreen("checkoutScreen");
+});
+document.getElementById("backCart").addEventListener("click",()=>{closeScreen("checkoutScreen");renderCart();openScreen("cartScreen")});
+document.querySelectorAll('input[name="delivery"]').forEach(r=>r.addEventListener("change",()=>{
+  document.getElementById("addressFields").hidden=document.querySelector('input[name="delivery"]:checked').value!=="delivery";
+}));
+
+document.getElementById("confirmOrder").addEventListener("click",async()=>{
+  const rows=cartRows();
+  const customer=document.getElementById("customerName").value.trim();
+  const whatsapp=document.getElementById("whatsapp").value.trim();
+  const date=document.getElementById("requestedDate").value;
+  const delivery=document.querySelector('input[name="delivery"]:checked').value;
+  const payment=document.getElementById("payment").value;
+  const err=document.getElementById("orderError");err.textContent="";
+  if(!customer||!whatsapp||!date||!payment){err.textContent="Preencha nome, WhatsApp, data e forma de pagamento.";return}
+  if(delivery==="delivery" && (!document.getElementById("street").value.trim()||!document.getElementById("number").value.trim()||!document.getElementById("neighborhood").value.trim()||!document.getElementById("city").value.trim())){err.textContent="Para entrega, informe rua, número, bairro e cidade.";return}
+  const total=rows.reduce((s,x)=>s+Number(x.price)*x.qty,0);
+  const orderId=crypto.randomUUID();
+  const payload={
+    id:orderId,owner_id:ownerId,customer_name:customer,whatsapp,
+    requested_date:date,delivery_method:delivery,
+    street:document.getElementById("street").value.trim(),
+    number:document.getElementById("number").value.trim(),
+    neighborhood:document.getElementById("neighborhood").value.trim(),
+    complement:document.getElementById("complement").value.trim(),
+    city:document.getElementById("city").value.trim(),
+    reference:document.getElementById("reference").value.trim(),
+    payment_method:payment,notes:document.getElementById("notes").value.trim(),
+    items:rows.map(x=>({id:x.source_product_id,name:x.name,price:Number(x.price),quantity:x.qty})),
+    subtotal:total,delivery_fee:0,total,status:"new"
+  };
+  const btn=document.getElementById("confirmOrder");btn.disabled=true;btn.textContent="ENVIANDO...";
+  const {error}=await db.from("customer_orders").insert(payload);
+  btn.disabled=false;btn.textContent="CONFIRMAR PEDIDO";
+  if(error){console.error(error);err.textContent="Não foi possível enviar o pedido agora. Tente novamente.";return}
+  document.getElementById("orderCode").textContent=orderId.slice(0,8).toUpperCase();
+  cart={};updateCart();closeScreen("checkoutScreen");openScreen("successScreen");
+});
+document.getElementById("newOrder").addEventListener("click",()=>{closeScreen("successScreen");location.reload()});
+document.getElementById("requestedDate").min=today();
+document.getElementById("requestedDate").value=today();
+loadStore();
+</script>
+</body>
+</html>
