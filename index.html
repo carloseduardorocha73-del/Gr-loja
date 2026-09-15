@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0d12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>GR Loja</title>
+<!-- GR Loja PRO Cliente: experiência guiada, filtros, ajuda e carrinho persistente -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b0d12;color:#f7f7f7}
@@ -24,61 +27,152 @@ body{min-height:100vh;padding-bottom:92px}button,input,select,textarea{font:inhe
 .stepper{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center}.stepper button{height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:#fff;font-size:24px;font-weight:900}.stepper input{text-align:center}.choice-list{display:grid;gap:8px}.choice{display:flex;align-items:center;gap:10px;background:#10131a;border:1px solid var(--line);padding:11px;border-radius:12px}.choice input{width:20px;height:20px;margin:0}.choice span{flex:1}.choice b{white-space:nowrap}.live-total{display:flex;justify-content:space-between;align-items:center;font-size:20px;font-weight:900;margin:18px 0 0}.error{color:#f87171;font-size:13px;margin-top:10px;min-height:16px}.primary{width:100%;border:0;border-radius:15px;background:#fff;color:#111;padding:15px;font-weight:900;margin-top:16px}.secondary{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--card2);color:#fff;padding:10px;font-weight:800;margin-top:9px}
 .cartitem{display:grid;grid-template-columns:1fr auto;gap:12px;padding:15px 0;border-bottom:1px solid var(--line)}.cart-name{font-weight:900}.cart-details{color:var(--muted);font-size:12px;line-height:1.5;margin-top:5px}.qty{display:flex;align-items:center;gap:8px}.qty button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:#fff}.line-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.mini{border:1px solid var(--line);background:#171b24;color:#fff;border-radius:9px;padding:7px 9px;font-size:12px}.remove{color:#fca5a5}.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0}.total{font-size:20px;font-weight:900;border-top:1px solid var(--line);margin-top:7px;padding-top:13px}.form{display:grid;gap:13px}.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}.option{background:var(--card);border:1px solid var(--line);padding:13px;border-radius:14px}.option input{width:auto}.address{display:grid;gap:12px}.address[hidden]{display:none}.checkout-item{padding:10px 0;border-bottom:1px solid var(--line)}.checkout-item:last-child{border:0}.empty{text-align:center;padding:50px 15px;color:var(--muted)}.ok{text-align:center;padding:50px 20px}.ok .icon{font-size:60px}.ok h2{font-size:28px}
 @media(max-width:430px){.grid{grid-template-columns:1fr 1fr}.name{font-size:15px}.wrap{padding:14px}.detail-photo{height:240px}.product-title{font-size:24px}}
+
+/* ===== GR LOJA PRO CLIENTE ===== */
+:root{--blue2:#60a5fa;--surface:#10131a;--soft:#1a1f2a;--gold:#f59e0b}
+body{background:radial-gradient(circle at top right,rgba(47,128,255,.08),transparent 32%),#0b0d12}
+.top{padding:14px 16px 12px}
+.appbar{max-width:760px;margin:auto;display:flex;align-items:center;gap:11px}
+.logo-mark{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(145deg,#1d4ed8,#2563eb);font-weight:1000;font-size:17px;box-shadow:0 8px 24px rgba(37,99,235,.24)}
+.appbar-copy{min-width:0;flex:1}.appbar-copy .brand{font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.appbar-copy .store{margin-top:2px}
+.icon-btn{width:42px;height:42px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:#fff;font-size:18px;display:grid;place-items:center}
+.hero{position:relative;overflow:hidden;background:linear-gradient(145deg,#182235,#121723);border:1px solid #28364d;border-radius:24px;padding:20px;margin-bottom:16px}
+.hero:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-70px;top:-90px;background:rgba(47,128,255,.16);filter:blur(2px)}
+.hero h1{font-size:24px;line-height:1.15;margin:0 0 8px;max-width:500px}.hero p{color:#b4bdca;margin:0;line-height:1.45;font-size:14px;max-width:540px}
+.guide-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;position:relative;z-index:1}
+.guide-step{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);border-radius:15px;padding:10px 8px;text-align:center;font-size:11px;color:#c7d0dc}.guide-step b{display:block;color:#fff;font-size:13px;margin-top:4px}.step-num{width:24px;height:24px;margin:auto;border-radius:50%;display:grid;place-items:center;background:rgba(47,128,255,.18);color:#93c5fd;font-weight:900}
+.search-shell{position:relative;margin-bottom:10px}.search-shell .search{margin:0;padding-right:47px}.clear-search{position:absolute;right:8px;top:7px;width:38px;height:38px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:20px}
+.filter-scroll{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}.filter-scroll::-webkit-scrollbar{display:none}.filter-chip{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:#cbd5e1;border-radius:999px;padding:9px 12px;font-size:12px;font-weight:800}.filter-chip.active{background:#fff;color:#111;border-color:#fff}
+.help-tip{display:flex;gap:10px;align-items:flex-start;background:rgba(47,128,255,.08);border:1px solid rgba(47,128,255,.18);border-radius:15px;padding:11px 12px;margin-bottom:16px;color:#c9d4e2;font-size:12px;line-height:1.45}.help-tip strong{color:#fff}.help-tip .tip-icon{font-size:18px}
+.section-heading{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:7px 0 12px}.section-heading h2{margin:0;font-size:20px}.section-heading span{color:var(--muted);font-size:12px}
+.card{transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}.card:active{transform:scale(.985)}.card:hover{border-color:#3a4556;box-shadow:0 12px 35px rgba(0,0,0,.18)}
+.photo{position:relative}.product-badge{position:absolute;left:9px;top:9px;padding:6px 9px;border-radius:999px;background:rgba(11,13,18,.82);backdrop-filter:blur(8px);font-size:10px;font-weight:900;border:1px solid rgba(255,255,255,.12)}
+.card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.mini-tag{font-size:10px;color:#cbd5e1;background:#202630;border-radius:999px;padding:5px 8px}.price-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.open-product{background:linear-gradient(135deg,#fff,#e9eef7)}
+.overlay{background:radial-gradient(circle at top right,rgba(47,128,255,.055),transparent 32%),#0b0d12}.head{padding:12px 16px}.head-title{min-width:0}.head-title h2{margin:0;font-size:18px}.head-title small{color:var(--muted);font-size:11px}
+.back{width:42px;height:42px;border:1px solid var(--line);border-radius:13px;background:var(--card);display:grid;place-items:center}
+.detail-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.detail-badge{font-size:11px;font-weight:800;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:var(--card)}
+.wizard{display:flex;align-items:center;justify-content:center;gap:5px;margin:3px 0 16px}.wizard-pill{font-size:10px;color:var(--muted);padding:6px 8px;border-radius:999px;border:1px solid var(--line);background:var(--card)}.wizard-pill.active{color:#dbeafe;border-color:rgba(96,165,250,.4);background:rgba(59,130,246,.10)}
+.box{box-shadow:0 10px 30px rgba(0,0,0,.08)}.box-step{display:flex;gap:11px;align-items:flex-start}.box-num{width:31px;height:31px;flex:0 0 31px;border-radius:10px;display:grid;place-items:center;background:rgba(47,128,255,.12);color:#93c5fd;font-weight:900}.box-content{flex:1;min-width:0}.box-content h3{margin:2px 0 5px}.box-explain{color:var(--muted);font-size:12px;line-height:1.45;margin-bottom:12px}
+.choice{position:relative;cursor:pointer}.choice:has(input:checked){border-color:#3b82f6;background:rgba(59,130,246,.08)}.choice input:checked{accent-color:#3b82f6}.choice b.free{color:#86efac;font-size:11px}
+.selected-counter{font-size:11px;color:#93c5fd;font-weight:800;margin-top:7px}
+.summary-title{font-weight:900;margin-bottom:6px}.summary-note{font-size:11px;color:var(--muted);line-height:1.4;margin-top:8px}.summary .row span{color:#c9d0da}
+.detail-sticky{position:sticky;bottom:0;z-index:5;margin:16px -18px -18px;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:rgba(11,13,18,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1.4fr;gap:10px;align-items:center}.detail-sticky .sticky-price small{display:block;color:var(--muted);font-size:10px}.detail-sticky .sticky-price b{font-size:20px}.detail-sticky .primary{margin:0;background:var(--blue);color:#fff}
+.cart-intro{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.18);border-radius:16px;padding:12px 13px;color:#c8d4cd;font-size:12px;line-height:1.45;margin-bottom:9px}.cart-intro b{color:#fff}.cartitem{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:14px;margin:10px 0}.cartitem:last-child{border-bottom:1px solid var(--line)}
+.continue-btn{width:100%;border:1px dashed #3a4452;background:transparent;color:#d7dee8;border-radius:14px;padding:13px;font-weight:800;margin:10px 0}
+.checkout-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}.checkout-progress div{font-size:10px;color:var(--muted);padding:8px 5px;text-align:center;border-radius:10px;background:var(--card);border:1px solid var(--line)}.checkout-progress div.active{color:#fff;border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.09)}
+.form-section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px}.form-section-title{font-weight:900;margin-bottom:3px}.form-section-sub{font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4}.form{gap:12px}
+.option{cursor:pointer;display:flex;align-items:center;gap:8px}.option:has(input:checked){border-color:#3b82f6;background:rgba(59,130,246,.08)}
+.success-card{max-width:520px;margin:25px auto;background:linear-gradient(160deg,#151b24,#11151d);border:1px solid var(--line);border-radius:26px;padding:28px 20px}.order-code-box{margin:18px auto;padding:14px;border:1px dashed #455269;border-radius:16px;background:#0e1218}.order-code-box small{display:block;color:var(--muted);margin-bottom:5px}.order-code-box b{font-size:24px;letter-spacing:.12em}.success-next{background:rgba(47,128,255,.07);border:1px solid rgba(47,128,255,.18);border-radius:15px;padding:12px;text-align:left;color:#cbd5e1;font-size:12px;line-height:1.5;margin:14px 0}
+.help-content h3{margin:18px 0 7px}.help-item{display:flex;gap:11px;padding:12px 0;border-bottom:1px solid var(--line)}.help-item:last-child{border:0}.help-number{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:rgba(47,128,255,.12);color:#93c5fd;font-weight:900;flex:0 0 30px}.help-text b{display:block;margin-bottom:3px}.help-text span{color:var(--muted);font-size:12px;line-height:1.45}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:#f8fafc;color:#111827;padding:11px 14px;border-radius:13px;font-weight:800;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:100;box-shadow:0 10px 35px rgba(0,0,0,.3)}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:430px){.guide-steps{gap:5px}.guide-step{padding:9px 5px}.hero{padding:17px}.hero h1{font-size:22px}.grid{gap:10px}.info{padding:11px}.detail-sticky{grid-template-columns:1fr 1.45fr}}
+
 </style>
 </head>
 <body>
-<div class="top"><div class="brand" id="storeName">GR Loja</div><div class="store">Clique no produto, escolha a quantidade e personalize</div></div>
-<main class="wrap"><input class="search" id="search" placeholder="🔎 Buscar produtos..."><div class="grid" id="products"></div></main>
+<div class="top">
+  <div class="appbar">
+    <div class="logo-mark">GR</div>
+    <div class="appbar-copy">
+      <div class="brand" id="storeName">GR Loja</div>
+      <div class="store">Loja online • pedido rápido e fácil</div>
+    </div>
+    <button class="icon-btn" id="shareStore" type="button" title="Compartilhar loja">↗</button>
+    <button class="icon-btn" id="openHelp" type="button" title="Como comprar">?</button>
+  </div>
+</div>
+<main class="wrap">
+  <section class="hero">
+    <h1>Escolha, personalize e faça seu pedido</h1>
+    <p>Você vê o valor enquanto monta seu produto. No final, é só informar seus dados e enviar o pedido para a loja.</p>
+    <div class="guide-steps">
+      <div class="guide-step"><span class="step-num">1</span><b>Escolha</b>um produto</div>
+      <div class="guide-step"><span class="step-num">2</span><b>Personalize</b>do seu jeito</div>
+      <div class="guide-step"><span class="step-num">3</span><b>Finalize</b>seu pedido</div>
+    </div>
+  </section>
+
+  <div class="search-shell">
+    <input class="search" id="search" placeholder="🔎 O que você está procurando?">
+    <button class="clear-search" id="clearSearch" type="button" hidden>×</button>
+  </div>
+  <div class="filter-scroll" id="filterChips"></div>
+  <div class="help-tip"><span class="tip-icon">💡</span><div><strong>É simples:</strong> toque em um produto para escolher quantidade, sabores e adicionais. O preço é atualizado automaticamente.</div></div>
+  <div class="section-heading"><h2>Produtos</h2><span id="productCount">Carregando…</span></div>
+  <div class="grid" id="products"></div>
+</main>
 <div class="cartbar"><button class="cartbtn" id="openCart"><span>🛒 Ver carrinho</span><span><span class="badge" id="cartCount">0</span> &nbsp; <b id="cartTotal">R$ 0,00</b></span></button></div>
 
 <section class="overlay" id="productScreen" hidden>
-  <div class="head"><button class="back" data-close="productScreen">←</button><h2>Produto</h2></div>
+  <div class="head"><button class="back" data-close="productScreen">←</button><div class="head-title"><h2>Monte seu produto</h2><small>Escolha exatamente como você quer</small></div></div>
   <div class="wrap">
+    <div class="wizard"><span class="wizard-pill active">1 Quantidade</span><span class="wizard-pill active">2 Personalização</span><span class="wizard-pill active">3 Carrinho</span></div>
     <div class="detail-photo" id="detailPhoto">📦</div>
     <h1 class="product-title" id="detailName"></h1>
     <div class="muted" id="detailDescription"></div>
+    <div class="detail-badges"><span class="detail-badge" id="detailUnitBadge"></span><span class="detail-badge" id="detailCustomBadge" hidden>✨ Personalizável</span></div>
     <div class="detail-price" id="detailPrice"></div>
 
     <div class="box">
-      <h3 id="measureTitle">📏 Quanto você quer?</h3>
+      <div class="box-step"><div class="box-num">1</div><div class="box-content"><h3 id="measureTitle">Quanto você quer?</h3><div class="box-explain" id="measureExplain">Use os botões − e + ou digite a quantidade.</div>
       <div class="stepper"><button id="measureMinus" type="button">−</button><input id="measureValue" type="number" inputmode="decimal"><button id="measurePlus" type="button">+</button></div>
-      <div class="small" id="measureHint" style="margin-top:8px"></div>
+      <div class="small" id="measureHint" style="margin-top:8px"></div></div></div>
     </div>
 
-    <div class="box" id="flavorBox" hidden><h3>🍰 Escolha os sabores</h3><div class="small" id="flavorHint"></div><div class="choice-list" id="flavorChoices" style="margin-top:10px"></div></div>
-    <div class="box" id="addonBox" hidden><h3>✨ Adicionais</h3><div class="small">Cada adicional escolhido é somado ao valor.</div><div class="choice-list" id="addonChoices" style="margin-top:10px"></div></div>
+    <div class="box" id="flavorBox" hidden><div class="box-step"><div class="box-num">2</div><div class="box-content"><h3>🍰 Escolha os sabores</h3><div class="box-explain" id="flavorHint"></div><div class="choice-list" id="flavorChoices"></div><div class="selected-counter" id="flavorCounter"></div></div></div></div>
+    <div class="box" id="addonBox" hidden><div class="box-step"><div class="box-num">3</div><div class="box-content"><h3>✨ Quer algum adicional?</h3><div class="box-explain">É opcional. Cada adicional escolhido é somado ao valor automaticamente.</div><div class="choice-list" id="addonChoices"></div></div></div></div>
 
-    <div class="box"><h3>🔢 Quantos iguais a esta configuração?</h3><div class="stepper"><button id="detailQtyMinus" type="button">−</button><input id="detailQty" type="number" min="1" step="1" value="1"><button id="detailQtyPlus" type="button">+</button></div><div class="small" style="margin-top:8px">Se quiser 3 bolos com pesos ou sabores diferentes, adicione um de cada vez. Cada um ficará separado no carrinho.</div></div>
+    <div class="box"><div class="box-step"><div class="box-num">4</div><div class="box-content"><h3>Quantos iguais a este?</h3><div class="box-explain">Use esta quantidade somente se todos tiverem o mesmo tamanho, sabores e adicionais. Para produtos diferentes, adicione separadamente.</div><div class="stepper"><button id="detailQtyMinus" type="button">−</button><input id="detailQty" type="number" min="1" step="1" value="1"><button id="detailQtyPlus" type="button">+</button></div></div></div></div>
 
-    <div class="summary"><div class="row"><span>Produto</span><b id="baseCalc">R$ 0,00</b></div><div class="row"><span>Sabores extras</span><b id="flavorCalc">R$ 0,00</b></div><div class="row"><span>Adicionais</span><b id="addonCalc">R$ 0,00</b></div><div class="row total"><span>Total</span><b id="detailTotal">R$ 0,00</b></div></div>
+    <div class="summary"><div class="summary-title">Resumo do valor</div><div class="row"><span>Produto</span><b id="baseCalc">R$ 0,00</b></div><div class="row"><span>Sabores</span><b id="flavorCalc">R$ 0,00</b></div><div class="row"><span>Adicionais</span><b id="addonCalc">R$ 0,00</b></div><div class="row total"><span>Total</span><b id="detailTotal">R$ 0,00</b></div><div class="summary-note">O total é atualizado conforme suas escolhas.</div></div>
     <div class="error" id="detailError"></div>
-    <button class="primary" id="addConfigured">ADICIONAR AO CARRINHO</button>
+    <div class="detail-sticky"><div class="sticky-price"><small>Total desta escolha</small><b id="detailStickyTotal">R$ 0,00</b></div><button class="primary" id="addConfigured">Adicionar ao carrinho</button></div>
   </div>
 </section>
 
 <section class="overlay" id="cartScreen" hidden>
-  <div class="head"><button class="back" data-close="cartScreen">←</button><h2>Seu carrinho</h2></div>
-  <div class="wrap"><div id="cartItems"></div><div class="summary"><div class="row"><span>Subtotal</span><b id="cartSubtotal">R$ 0,00</b></div><div class="row total"><span>Total</span><b id="cartGrandTotal">R$ 0,00</b></div></div><button class="primary" id="checkoutBtn">FINALIZAR COMPRA</button></div>
-</section>
-
-<section class="overlay" id="checkoutScreen" hidden>
-  <div class="head"><button class="back" id="backCart">←</button><h2>Finalizar pedido</h2></div>
+  <div class="head"><button class="back" data-close="cartScreen">←</button><div class="head-title"><h2>Seu carrinho</h2><small>Confira antes de finalizar</small></div></div>
   <div class="wrap">
-    <div class="form">
-      <div><label>👤 Seu nome</label><input id="customerName" placeholder="Nome completo"></div>
-      <div><label>📱 WhatsApp</label><input id="whatsapp" inputmode="tel" placeholder="(64) 99999-9999"></div>
-      <div><label>📅 Dia que deseja</label><input id="requestedDate" type="date"></div>
-      <div><label>🚚 Como você quer receber?</label><div class="options"><label class="option"><input type="radio" name="delivery" value="pickup" checked> Vou buscar</label><label class="option"><input type="radio" name="delivery" value="delivery"> Quero entrega</label></div></div>
-      <div class="address" id="addressFields" hidden><div><label>Rua</label><input id="street"></div><div><label>Número</label><input id="number"></div><div><label>Bairro</label><input id="neighborhood"></div><div><label>Complemento</label><input id="complement"></div><div><label>Cidade</label><input id="city"></div><div><label>Ponto de referência</label><input id="reference"></div></div>
-      <div><label>💳 Forma de pagamento</label><select id="payment"><option value="">Selecione...</option><option>Pix</option><option>Dinheiro</option><option>Cartão</option></select></div>
-      <div><label>📝 Observações</label><textarea id="notes" placeholder="Alguma observação sobre o pedido?"></textarea></div>
-    </div>
-    <div class="summary"><b>Resumo dos produtos</b><div id="checkoutItemDetails" style="margin-top:8px"></div><div class="row"><span>Subtotal</span><b id="checkoutSubtotal">R$ 0,00</b></div><div class="row total"><span>Total</span><b id="checkoutTotal">R$ 0,00</b></div><div class="small" style="margin-top:8px">Se houver taxa de entrega, a loja poderá confirmar o valor pelo WhatsApp.</div></div>
-    <button class="primary" id="confirmOrder">CONFIRMAR PEDIDO</button><div class="error" id="orderError"></div>
+    <div class="cart-intro"><b>Quer produtos diferentes?</b> Você pode colocar um bolo de 4 kg e outro de 1 kg, com sabores diferentes. Use “Outro diferente” em cada item.</div>
+    <div id="cartItems"></div>
+    <button class="continue-btn" id="continueShopping" type="button">＋ Continuar escolhendo produtos</button>
+    <div class="summary"><div class="summary-title">Resumo do carrinho</div><div class="row"><span>Itens</span><b id="cartItemSummary">0</b></div><div class="row"><span>Subtotal</span><b id="cartSubtotal">R$ 0,00</b></div><div class="row total"><span>Total</span><b id="cartGrandTotal">R$ 0,00</b></div></div>
+    <button class="primary" id="checkoutBtn">Continuar para finalizar →</button>
   </div>
 </section>
 
-<section class="overlay" id="successScreen" hidden><div class="wrap ok"><div class="icon">✅</div><h2>Pedido enviado!</h2><p>Seu pedido foi enviado para a loja.</p><p class="small">Código: <b id="orderCode"></b></p><button class="primary" id="newOrder">VOLTAR PARA A LOJA</button></div></section>
+<section class="overlay" id="checkoutScreen" hidden>
+  <div class="head"><button class="back" id="backCart">←</button><div class="head-title"><h2>Finalizar pedido</h2><small>Última etapa</small></div></div>
+  <div class="wrap">
+    <div class="checkout-progress"><div class="active">✓ Produtos</div><div class="active">✓ Carrinho</div><div class="active">3 Seus dados</div></div>
+    <div class="form">
+      <div class="form-section"><div class="form-section-title">👤 Seus dados</div><div class="form-section-sub">Usaremos essas informações para a loja confirmar seu pedido.</div><div><label>Seu nome</label><input id="customerName" placeholder="Nome completo" autocomplete="name"></div><div><label>WhatsApp</label><input id="whatsapp" inputmode="tel" placeholder="(64) 99999-9999" autocomplete="tel"><div class="small" style="margin-top:5px">A loja poderá falar com você por este número.</div></div><div><label>Dia que deseja</label><input id="requestedDate" type="date"></div></div>
+      <div class="form-section"><div class="form-section-title">🚚 Como quer receber?</div><div class="form-section-sub">Escolha retirada ou entrega.</div><div class="options"><label class="option"><input type="radio" name="delivery" value="pickup" checked> 🏪 Vou buscar</label><label class="option"><input type="radio" name="delivery" value="delivery"> 🛵 Quero entrega</label></div><div class="address" id="addressFields" hidden><div><label>Rua</label><input id="street" autocomplete="street-address"></div><div><label>Número</label><input id="number"></div><div><label>Bairro</label><input id="neighborhood"></div><div><label>Complemento</label><input id="complement"></div><div><label>Cidade</label><input id="city"></div><div><label>Ponto de referência</label><input id="reference"></div></div></div>
+      <div class="form-section"><div class="form-section-title">💳 Pagamento</div><div class="form-section-sub">Escolha como prefere pagar. A loja confirma os detalhes depois.</div><select id="payment"><option value="">Selecione a forma de pagamento</option><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Outro</option></select></div>
+      <div class="form-section"><div class="form-section-title">📝 Observações</div><div class="form-section-sub">Opcional. Use para recados importantes sobre o pedido.</div><textarea id="notes" placeholder="Ex.: escrever ‘Parabéns, Ana’ no bolo, tocar interfone, sem talher..."></textarea></div>
+    </div>
+    <div class="summary"><div class="summary-title">Revise seu pedido</div><div id="checkoutItemDetails" style="margin-top:8px"></div><div class="row"><span>Subtotal</span><b id="checkoutSubtotal">R$ 0,00</b></div><div class="row total"><span>Total</span><b id="checkoutTotal">R$ 0,00</b></div><div class="summary-note">Se houver taxa de entrega, a loja poderá confirmar o valor pelo WhatsApp antes de concluir.</div></div>
+    <button class="primary" id="confirmOrder">ENVIAR PEDIDO PARA A LOJA</button><div class="error" id="orderError"></div>
+  </div>
+</section>
+
+<section class="overlay" id="successScreen" hidden>
+  <div class="wrap ok"><div class="success-card"><div class="icon">✅</div><h2>Pedido enviado!</h2><p>A loja recebeu seu pedido.</p><div class="order-code-box"><small>Seu código do pedido</small><b id="orderCode"></b></div><div class="success-next"><b>O que acontece agora?</b><br>1. A loja confere o pedido.<br>2. Ela pode entrar em contato pelo seu WhatsApp.<br>3. Aguarde a confirmação de produção, retirada ou entrega.</div><button class="secondary" id="copyOrderCode" type="button">📋 Copiar código do pedido</button><button class="primary" id="newOrder">VOLTAR PARA A LOJA</button></div></div>
+</section>
+
+<section class="overlay" id="helpScreen" hidden>
+  <div class="head"><button class="back" data-close="helpScreen">←</button><div class="head-title"><h2>Como comprar</h2><small>Passo a passo simples</small></div></div>
+  <div class="wrap help-content">
+    <div class="help-item"><div class="help-number">1</div><div class="help-text"><b>Escolha um produto</b><span>Toque na foto ou no botão “Ver produto”.</span></div></div>
+    <div class="help-item"><div class="help-number">2</div><div class="help-text"><b>Escolha a quantidade</b><span>Dependendo do produto, você poderá escolher quilos, litros, unidades, caixas ou pacotes.</span></div></div>
+    <div class="help-item"><div class="help-number">3</div><div class="help-text"><b>Personalize</b><span>Se o produto tiver sabores ou adicionais, escolha o que desejar. O valor muda automaticamente.</span></div></div>
+    <div class="help-item"><div class="help-number">4</div><div class="help-text"><b>Use o carrinho</b><span>Você pode adicionar vários produtos. Se quiser o mesmo produto com configurações diferentes, adicione cada um separadamente.</span></div></div>
+    <div class="help-item"><div class="help-number">5</div><div class="help-text"><b>Finalize</b><span>Informe nome, WhatsApp, data, retirada/entrega e pagamento. Depois envie o pedido à loja.</span></div></div>
+    <div class="help-tip" style="margin-top:18px"><span class="tip-icon">🔒</span><div><strong>Sem cadastro:</strong> você não precisa criar conta para fazer o pedido.</div></div>
+    <button class="primary" data-close="helpScreen">ENTENDI, QUERO COMPRAR</button>
+  </div>
+</section>
+<div class="toast" id="toast"></div>
 
 <script>
 const SUPABASE_URL="https://kygfrtgdcnhldnovmfxp.supabase.co";
@@ -88,15 +182,35 @@ const ownerId=new URLSearchParams(location.search).get("loja");
 let products=[];
 let cart=[];
 let currentProduct=null;
+let activeFilter="Todos";
+let lastOrderCode="";
 
 const $=id=>document.getElementById(id);
 function money(v){return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
 function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function today(){const d=new Date();return d.toISOString().slice(0,10)}
 function uid(){return (crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random().toString(36).slice(2))}
+function toast(msg){const el=$("toast");if(!el)return;el.textContent=msg;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),1800)}
+function cartKey(){return `grloja_cart_${ownerId||"sem-loja"}`}
+function loadCartLocal(){try{const saved=JSON.parse(localStorage.getItem(cartKey())||"[]");if(Array.isArray(saved))cart=saved}catch(e){cart=[]}}
+function saveCartLocal(){try{localStorage.setItem(cartKey(),JSON.stringify(cart))}catch(e){}}
+function unitLabel(unit){return unit||"Unidade"}
+function productBadge(p){const c=config(p);return c.customizable?"✨ Personalizável":`📦 ${unitLabel(p.unit)}`}
+function renderFilters(){
+  const units=[...new Set(products.map(p=>unitLabel(p.unit)).filter(Boolean))];
+  const filters=["Todos","Personalizáveis",...units];
+  if(!filters.includes(activeFilter))activeFilter="Todos";
+  $("filterChips").innerHTML=filters.map(f=>`<button class="filter-chip ${f===activeFilter?"active":""}" data-filter="${esc(f)}">${esc(f)}</button>`).join("");
+}
 function opts(p){return p&&p.options&&typeof p.options==="object"?p.options:{}}
 function unitDefaults(unit){return (unit==="Kg"||unit==="Litro")?{min:.5,max:20,step:.5}:{min:1,max:50,step:1}}
-function config(p){const o=opts(p),d=unitDefaults(p.unit);return {measureMin:Number(o.measureMin??d.min),measureMax:Number(o.measureMax??d.max),measureStep:Number(o.measureStep??d.step),customizable:o.customizable===true,flavors:Array.isArray(o.flavors)?o.flavors:[],includedFlavors:Number(o.includedFlavors??1),extraFlavorPrice:Number(o.extraFlavorPrice??0),maxFlavors:Number(o.maxFlavors??4),addons:Array.isArray(o.addons)?o.addons:[]}}
+function config(p){
+  const o=opts(p),d=unitDefaults(p.unit);
+  const raw=Array.isArray(o.flavors)?o.flavors:[];
+  const priced=raw.some(f=>f&&typeof f==="object");
+  const flavors=raw.map(f=>typeof f==="string"?{name:f,price:0}:{name:String(f?.name||""),price:Math.max(0,Number(f?.price||0))}).filter(f=>f.name);
+  return {measureMin:Number(o.measureMin??d.min),measureMax:Number(o.measureMax??d.max),measureStep:Number(o.measureStep??d.step),customizable:o.customizable===true,flavors,flavorPricingMode:priced?"individual":"legacy",includedFlavors:Number(o.includedFlavors??1),extraFlavorPrice:Number(o.extraFlavorPrice??0),maxFlavors:Number(o.maxFlavors??4),addons:Array.isArray(o.addons)?o.addons:[]};
+}
 function decimals(step){const s=String(step);return s.includes(".")?Math.min(3,s.split(".")[1].length):0}
 function roundStep(v,step){return Number((Math.round(v/step)*step).toFixed(decimals(step)))}
 function clampMeasure(v,c){const raw=Number(v||c.measureMin),steps=Math.round((raw-c.measureMin)/c.measureStep),snapped=c.measureMin+steps*c.measureStep;return Number(Math.min(c.measureMax,Math.max(c.measureMin,snapped)).toFixed(Math.max(decimals(c.measureStep),decimals(c.measureMin))))}
@@ -111,35 +225,49 @@ async function loadStore(){
   $("storeName").textContent=store.store_name||"GR Loja";document.title=(store.store_name||"GR Loja")+" • Pedidos";
   const {data,error}=await db.from("public_products").select("*").eq("owner_id",ownerId).eq("available",true).order("name");
   if(error){console.error(error);$("products").innerHTML='<div class="empty" style="grid-column:1/-1">Não foi possível carregar os produtos.</div>';return}
-  products=data||[];renderProducts();
+  products=data||[];renderFilters();renderProducts();
 }
 
 function renderProducts(){
   const q=$("search").value.trim().toLowerCase();
-  const list=products.filter(p=>!q||String(p.name||"").toLowerCase().includes(q)||String(p.description||"").toLowerCase().includes(q));
-  if(!list.length){$("products").innerHTML='<div class="empty" style="grid-column:1/-1">Nenhum produto disponível.</div>';return}
-  $("products").innerHTML=list.map(p=>`<article class="card" data-product="${esc(p.id)}"><div class="photo">${p.image?`<img src="${esc(p.image)}" alt="">`:"📦"}</div><div class="info"><div class="name">${esc(p.name)}</div>${p.description?`<div class="desc">${esc(p.description)}</div>`:""}<div><div class="price">${money(p.price)}</div><div class="unit">por ${esc(p.unit||"Unidade")}</div></div><button class="open-product" type="button">ESCOLHER</button></div></article>`).join("");
+  const list=products.filter(p=>{
+    const matchSearch=!q||String(p.name||"").toLowerCase().includes(q)||String(p.description||"").toLowerCase().includes(q);
+    const c=config(p);
+    const matchFilter=activeFilter==="Todos"||(activeFilter==="Personalizáveis"&&c.customizable)||activeFilter===unitLabel(p.unit);
+    return matchSearch&&matchFilter;
+  });
+  $("productCount").textContent=`${list.length} ${list.length===1?"produto":"produtos"}`;
+  if(!list.length){$("products").innerHTML='<div class="empty" style="grid-column:1/-1"><div style="font-size:42px;margin-bottom:8px">🔎</div><b>Nenhum produto encontrado</b><div class="small" style="margin-top:5px">Tente outra busca ou outro filtro.</div></div>';return}
+  $("products").innerHTML=list.map(p=>{const c=config(p);return `<article class="card" data-product="${esc(p.id)}"><div class="photo">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}">`:"📦"}<span class="product-badge">${productBadge(p)}</span></div><div class="info"><div class="name">${esc(p.name)}</div>${p.description?`<div class="desc">${esc(p.description)}</div>`:""}<div class="card-meta"><span class="mini-tag">${esc(unitLabel(p.unit))}</span>${c.customizable?'<span class="mini-tag">Sabores / adicionais</span>':""}</div><div><div class="price-label">A partir de</div><div class="price">${money(p.price)}</div><div class="unit">por ${esc(unitLabel(p.unit))}${c.measureMin?` • mín. ${c.measureMin}`:""}</div></div><button class="open-product" type="button">VER E ESCOLHER</button></div></article>`}).join("");
 }
 
 function openProduct(p){
   currentProduct=p;const c=config(p);
-  $("detailPhoto").innerHTML=p.image?`<img src="${esc(p.image)}" alt="">`:"📦";$("detailName").textContent=p.name||"Produto";$("detailDescription").textContent=p.description||"";$("detailPrice").textContent=`${money(p.price)} por ${p.unit||"Unidade"}`;
+  $("detailPhoto").innerHTML=p.image?`<img src="${esc(p.image)}" alt="${esc(p.name||"Produto")}">`:"📦";$("detailName").textContent=p.name||"Produto";$("detailDescription").textContent=p.description||"";$("detailPrice").textContent=`${money(p.price)} por ${p.unit||"Unidade"}`;
+  $("detailUnitBadge").textContent=`📏 Vendido por ${p.unit||"Unidade"}`;$("detailCustomBadge").hidden=!c.customizable;
   $("measureTitle").textContent=unitQuestion(p.unit||"Unidade");$("measureValue").min=c.measureMin;$("measureValue").max=c.measureMax;$("measureValue").step=c.measureStep;$("measureValue").value=c.measureMin;$("measureHint").textContent=`Mínimo ${c.measureMin} • Máximo ${c.measureMax} • De ${c.measureStep} em ${c.measureStep} ${p.unit||""}`;
   $("detailQty").value=1;$("detailError").textContent="";
   $("flavorBox").hidden=!(c.customizable&&c.flavors.length);$("addonBox").hidden=!(c.customizable&&c.addons.length);
-  $("flavorHint").textContent=c.flavors.length?`Escolha até ${c.maxFlavors} sabor(es). ${c.includedFlavors} incluído(s) sem acréscimo${c.extraFlavorPrice?`; cada sabor extra custa ${money(c.extraFlavorPrice)}`:""}.`:"";
-  $("flavorChoices").innerHTML=c.flavors.map((f,i)=>`<label class="choice"><input type="checkbox" data-flavor value="${esc(f)}"><span>${esc(f)}</span></label>`).join("");
+  $("flavorHint").textContent=c.flavors.length?`Você pode escolher até ${c.maxFlavors} sabor(es). O valor de cada um aparece ao lado.`:"";
+  $("flavorCounter").textContent=c.flavors.length?`0 de ${c.maxFlavors} selecionados`:"";
+  $("flavorChoices").innerHTML=c.flavors.map((f,i)=>`<label class="choice"><input type="checkbox" data-flavor="${i}"><span>${esc(f.name)}</span>${Number(f.price||0)>0?`<b>+ ${money(f.price)}</b>`:`<b class="free">Sem acréscimo</b>`}</label>`).join("");
   $("addonChoices").innerHTML=c.addons.map((a,i)=>`<label class="choice"><input type="checkbox" data-addon="${i}"><span>${esc(a.name||"Adicional")}</span><b>+ ${money(a.price)}</b></label>`).join("");
   updateDetailTotal();openScreen("productScreen");
 }
-function selectedFlavors(){return [...document.querySelectorAll('[data-flavor]:checked')].map(x=>x.value)}
+function selectedFlavors(){
+  if(!currentProduct)return[];const c=config(currentProduct);
+  return [...document.querySelectorAll('[data-flavor]:checked')].map(x=>c.flavors[Number(x.dataset.flavor)]).filter(Boolean).map(f=>({name:f.name,price:Number(f.price||0)}));
+}
 function selectedAddons(){if(!currentProduct)return[];const c=config(currentProduct);return [...document.querySelectorAll('[data-addon]:checked')].map(x=>c.addons[Number(x.dataset.addon)]).filter(Boolean).map(a=>({name:a.name||"Adicional",price:Number(a.price||0)}))}
 function detailCalc(){
   if(!currentProduct)return {measure:0,qty:1,base:0,flavorExtra:0,addonsTotal:0,configuredTotal:0,lineTotal:0,flavors:[],addons:[]};
   const c=config(currentProduct),measure=clampMeasure($("measureValue").value,c),qty=Math.max(1,Math.floor(Number($("detailQty").value||1))),flavors=selectedFlavors(),addons=selectedAddons();
-  const base=Number(currentProduct.price||0)*measure;const extraCount=Math.max(0,flavors.length-c.includedFlavors);const flavorExtra=extraCount*c.extraFlavorPrice;const addonsTotal=addons.reduce((s,a)=>s+Number(a.price||0),0);const configuredTotal=base+flavorExtra+addonsTotal;return {measure,qty,base,flavorExtra,addonsTotal,configuredTotal,lineTotal:configuredTotal*qty,flavors,addons};
+  const base=Number(currentProduct.price||0)*measure;
+  const flavorExtra=c.flavorPricingMode==="individual"?flavors.reduce((s,f)=>s+Number(f.price||0),0):Math.max(0,flavors.length-c.includedFlavors)*c.extraFlavorPrice;
+  const addonsTotal=addons.reduce((s,a)=>s+Number(a.price||0),0);const configuredTotal=base+flavorExtra+addonsTotal;
+  return {measure,qty,base,flavorExtra,addonsTotal,configuredTotal,lineTotal:configuredTotal*qty,flavors,addons};
 }
-function updateDetailTotal(){const x=detailCalc();$("baseCalc").textContent=money(x.base);$("flavorCalc").textContent=money(x.flavorExtra);$("addonCalc").textContent=money(x.addonsTotal);$("detailTotal").textContent=money(x.lineTotal)}
+function updateDetailTotal(){const x=detailCalc();$("baseCalc").textContent=money(x.base);$("flavorCalc").textContent=money(x.flavorExtra);$("addonCalc").textContent=money(x.addonsTotal);$("detailTotal").textContent=money(x.lineTotal);$("detailStickyTotal").textContent=money(x.lineTotal);if(currentProduct){const c=config(currentProduct);if(c.flavors.length)$("flavorCounter").textContent=`${x.flavors.length} de ${c.maxFlavors} selecionados`}}
 function changeMeasure(delta){if(!currentProduct)return;const c=config(currentProduct);$("measureValue").value=clampMeasure(Number($("measureValue").value||c.measureMin)+delta*c.measureStep,c);updateDetailTotal()}
 
 function addCurrentToCart(){
@@ -147,24 +275,32 @@ function addCurrentToCart(){
   if(x.measure<c.measureMin||x.measure>c.measureMax){$("detailError").textContent="Quantidade fora do limite permitido.";return}
   if(c.customizable&&c.flavors.length&&!x.flavors.length){$("detailError").textContent="Escolha pelo menos um sabor.";return}
   if(x.flavors.length>c.maxFlavors){$("detailError").textContent=`Escolha no máximo ${c.maxFlavors} sabores.`;return}
-  cart.push({lineId:uid(),productId:currentProduct.id,source_product_id:currentProduct.source_product_id,name:currentProduct.name,unit:currentProduct.unit||"Unidade",baseUnitPrice:Number(currentProduct.price||0),measure:x.measure,flavors:x.flavors,addons:x.addons,quantity:x.qty,baseSubtotal:x.base,flavorExtra:x.flavorExtra,addonsTotal:x.addonsTotal,price:x.configuredTotal,lineTotal:x.lineTotal});
+  cart.push({lineId:uid(),productId:currentProduct.id,source_product_id:currentProduct.source_product_id,name:currentProduct.name,unit:currentProduct.unit||"Unidade",baseUnitPrice:Number(currentProduct.price||0),measure:x.measure,flavors:x.flavors.map(f=>f.name),flavorSelections:x.flavors,addons:x.addons,quantity:x.qty,baseSubtotal:x.base,flavorExtra:x.flavorExtra,addonsTotal:x.addonsTotal,price:x.configuredTotal,lineTotal:x.lineTotal});
   updateCartBar();closeScreen("productScreen");renderCart();openScreen("cartScreen");
 }
 function cartTotal(){return cart.reduce((s,l)=>s+Number(l.price||0)*Number(l.quantity||1),0)}
 function cartItemCount(){return cart.reduce((s,l)=>s+Number(l.quantity||1),0)}
 function lineDetails(l){const d=[`${l.measure} ${l.unit}`];if(l.flavors?.length)d.push(`Sabores: ${l.flavors.join(", ")}`);if(l.addons?.length)d.push(`Adicionais: ${l.addons.map(a=>a.name).join(", ")}`);return d.join(" • ")}
-function updateCartBar(){$("cartCount").textContent=cartItemCount();$("cartTotal").textContent=money(cartTotal())}
+function updateCartBar(){saveCartLocal();$("cartCount").textContent=cartItemCount();$("cartTotal").textContent=money(cartTotal());if($("cartItemSummary"))$("cartItemSummary").textContent=`${cartItemCount()} ${cartItemCount()===1?"item":"itens"}`}
 function renderCart(){
-  if(!cart.length){$("cartItems").innerHTML='<div class="empty">Seu carrinho está vazio.</div>'}else{$("cartItems").innerHTML=cart.map(l=>`<div class="cartitem" data-line="${l.lineId}"><div><div class="cart-name">${esc(l.name)}</div><div class="cart-details">${esc(lineDetails(l))}</div><div style="font-weight:900;margin-top:6px">${money(Number(l.price)*Number(l.quantity))}</div><div class="line-actions"><button class="mini" data-another="${esc(l.productId)}">＋ Outro diferente</button><button class="mini remove" data-remove="${l.lineId}">Remover</button></div></div><div class="qty"><button data-minus="${l.lineId}">−</button><b>${l.quantity}</b><button data-plus="${l.lineId}">＋</button></div></div>`).join("")}
+  if(!cart.length){$("cartItems").innerHTML='<div class="empty"><div style="font-size:44px;margin-bottom:8px">🛒</div><b>Seu carrinho está vazio</b><div class="small" style="margin-top:5px">Escolha um produto para começar.</div></div>'}else{$("cartItems").innerHTML=cart.map(l=>`<div class="cartitem" data-line="${l.lineId}"><div><div class="cart-name">${esc(l.name)}</div><div class="cart-details">${esc(lineDetails(l))}</div><div style="font-weight:900;margin-top:6px">${money(Number(l.price)*Number(l.quantity))}</div><div class="line-actions"><button class="mini" data-another="${esc(l.productId)}">＋ Outro diferente</button><button class="mini remove" data-remove="${l.lineId}">Remover</button></div></div><div class="qty"><button data-minus="${l.lineId}">−</button><b>${l.quantity}</b><button data-plus="${l.lineId}">＋</button></div></div>`).join("")}
   $("cartSubtotal").textContent=money(cartTotal());$("cartGrandTotal").textContent=money(cartTotal());$("checkoutBtn").disabled=!cart.length;
 }
 function renderCheckoutSummary(){
   $("checkoutItemDetails").innerHTML=cart.map(l=>`<div class="checkout-item"><b>${l.quantity}x ${esc(l.name)}</b><div class="small">${esc(lineDetails(l))}</div><div style="text-align:right;font-weight:900">${money(Number(l.price)*Number(l.quantity))}</div></div>`).join("");$("checkoutSubtotal").textContent=money(cartTotal());$("checkoutTotal").textContent=money(cartTotal())
 }
 
+$("filterChips").addEventListener("click",e=>{const b=e.target.closest("[data-filter]");if(!b)return;activeFilter=b.dataset.filter;renderFilters();renderProducts()});
+$("search").addEventListener("input",()=>{$("clearSearch").hidden=!$("search").value;renderProducts()});
+$("clearSearch").addEventListener("click",()=>{$("search").value="";$("clearSearch").hidden=true;renderProducts();$("search").focus()});
+$("openHelp").addEventListener("click",()=>openScreen("helpScreen"));
+$("shareStore").addEventListener("click",async()=>{try{if(navigator.share)await navigator.share({title:$("storeName").textContent||"GR Loja",text:"Veja os produtos desta loja e faça seu pedido:",url:location.href});else{await navigator.clipboard.writeText(location.href);toast("Link da loja copiado")}}catch(e){}});
+$("continueShopping").addEventListener("click",()=>closeScreen("cartScreen"));
+$("copyOrderCode").addEventListener("click",async()=>{if(!lastOrderCode)return;try{await navigator.clipboard.writeText(lastOrderCode);toast("Código copiado") }catch(e){toast(`Código: ${lastOrderCode}`)}});
+$("whatsapp").addEventListener("input",e=>{let n=e.target.value.replace(/\D/g,"").slice(0,11);if(n.length>7)n=`(${n.slice(0,2)}) ${n.slice(2,n.length===11?7:6)}-${n.slice(n.length===11?7:6)}`;else if(n.length>2)n=`(${n.slice(0,2)}) ${n.slice(2)}`;e.target.value=n});
 $("products").addEventListener("click",e=>{const card=e.target.closest('[data-product]');if(!card)return;const p=products.find(x=>String(x.id)===card.dataset.product);if(p)openProduct(p)});
-$("search").addEventListener("input",renderProducts);$("measureMinus").addEventListener("click",()=>changeMeasure(-1));$("measurePlus").addEventListener("click",()=>changeMeasure(1));$("measureValue").addEventListener("input",updateDetailTotal);$("detailQty").addEventListener("input",updateDetailTotal);$("detailQtyMinus").addEventListener("click",()=>{$("detailQty").value=Math.max(1,Number($("detailQty").value||1)-1);updateDetailTotal()});$("detailQtyPlus").addEventListener("click",()=>{$("detailQty").value=Math.max(1,Number($("detailQty").value||1)+1);updateDetailTotal()});
-$("flavorChoices").addEventListener("change",e=>{if(!currentProduct)return;const c=config(currentProduct),checked=selectedFlavors();if(checked.length>c.maxFlavors){e.target.checked=false;$("detailError").textContent=`Máximo de ${c.maxFlavors} sabores.`}else $("detailError").textContent="";updateDetailTotal()});$("addonChoices").addEventListener("change",updateDetailTotal);$("addConfigured").addEventListener("click",addCurrentToCart);
+$("measureMinus").addEventListener("click",()=>changeMeasure(-1));$("measurePlus").addEventListener("click",()=>changeMeasure(1));$("measureValue").addEventListener("input",updateDetailTotal);$("detailQty").addEventListener("input",updateDetailTotal);$("detailQtyMinus").addEventListener("click",()=>{$("detailQty").value=Math.max(1,Number($("detailQty").value||1)-1);updateDetailTotal()});$("detailQtyPlus").addEventListener("click",()=>{$("detailQty").value=Math.max(1,Number($("detailQty").value||1)+1);updateDetailTotal()});
+$("flavorChoices").addEventListener("change",e=>{if(!currentProduct)return;const c=config(currentProduct),checked=selectedFlavors();if(checked.length>c.maxFlavors){e.target.checked=false;$("detailError").textContent=`Você pode escolher no máximo ${c.maxFlavors} sabores.`;toast(`Máximo de ${c.maxFlavors} sabores`)}else $("detailError").textContent="";updateDetailTotal()});$("addonChoices").addEventListener("change",updateDetailTotal);$("addConfigured").addEventListener("click",addCurrentToCart);
 $("openCart").addEventListener("click",()=>{renderCart();openScreen("cartScreen")});document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeScreen(b.dataset.close)));
 $("cartItems").addEventListener("click",e=>{const plus=e.target.closest('[data-plus]'),minus=e.target.closest('[data-minus]'),remove=e.target.closest('[data-remove]'),another=e.target.closest('[data-another]');if(plus){const l=cart.find(x=>x.lineId===plus.dataset.plus);if(l)l.quantity++;}if(minus){const l=cart.find(x=>x.lineId===minus.dataset.minus);if(l){l.quantity=Math.max(0,l.quantity-1);if(!l.quantity)cart=cart.filter(x=>x.lineId!==l.lineId)}}if(remove)cart=cart.filter(x=>x.lineId!==remove.dataset.remove);if(another){const p=products.find(x=>String(x.id)===another.dataset.another);if(p){closeScreen("cartScreen");openProduct(p);return}}renderCart();updateCartBar()});
 $("checkoutBtn").addEventListener("click",()=>{if(!cart.length)return;renderCheckoutSummary();closeScreen("cartScreen");openScreen("checkoutScreen")});$("backCart").addEventListener("click",()=>{closeScreen("checkoutScreen");renderCart();openScreen("cartScreen")});document.querySelectorAll('input[name="delivery"]').forEach(r=>r.addEventListener("change",()=>{$("addressFields").hidden=document.querySelector('input[name="delivery"]:checked').value!=="delivery"}));
@@ -172,10 +308,10 @@ $("checkoutBtn").addEventListener("click",()=>{if(!cart.length)return;renderChec
 $("confirmOrder").addEventListener("click",async()=>{
   const customer=$("customerName").value.trim(),whatsapp=$("whatsapp").value.trim(),date=$("requestedDate").value,delivery=document.querySelector('input[name="delivery"]:checked').value,payment=$("payment").value,err=$("orderError");err.textContent="";
   if(!cart.length){err.textContent="Seu carrinho está vazio.";return}if(!customer||!whatsapp||!date||!payment){err.textContent="Preencha nome, WhatsApp, data e forma de pagamento.";return}if(delivery==="delivery"&&(!$('street').value.trim()||!$('number').value.trim()||!$('neighborhood').value.trim()||!$('city').value.trim())){err.textContent="Para entrega, informe rua, número, bairro e cidade.";return}
-  const orderId=uid(),total=cartTotal();const payload={id:orderId,owner_id:ownerId,customer_name:customer,whatsapp,requested_date:date,delivery_method:delivery,street:$("street").value.trim(),number:$("number").value.trim(),neighborhood:$("neighborhood").value.trim(),complement:$("complement").value.trim(),city:$("city").value.trim(),reference:$("reference").value.trim(),payment_method:payment,notes:$("notes").value.trim(),items:cart.map(l=>({id:l.source_product_id||l.productId,name:l.name,unit:l.unit,baseUnitPrice:l.baseUnitPrice,measure:l.measure,flavors:l.flavors,addons:l.addons,quantity:l.quantity,baseSubtotal:l.baseSubtotal,flavorExtra:l.flavorExtra,addonsTotal:l.addonsTotal,price:l.price,lineTotal:Number(l.price)*Number(l.quantity)})),subtotal:total,delivery_fee:0,total,status:"new"};
-  const btn=$("confirmOrder");btn.disabled=true;btn.textContent="ENVIANDO...";const {error}=await db.from("customer_orders").insert(payload);btn.disabled=false;btn.textContent="CONFIRMAR PEDIDO";if(error){console.error(error);err.textContent="Não foi possível enviar o pedido agora. Tente novamente.";return}$("orderCode").textContent=String(orderId).slice(0,8).toUpperCase();cart=[];updateCartBar();closeScreen("checkoutScreen");openScreen("successScreen")
+  const orderId=uid(),total=cartTotal();const payload={id:orderId,owner_id:ownerId,customer_name:customer,whatsapp,requested_date:date,delivery_method:delivery,street:$("street").value.trim(),number:$("number").value.trim(),neighborhood:$("neighborhood").value.trim(),complement:$("complement").value.trim(),city:$("city").value.trim(),reference:$("reference").value.trim(),payment_method:payment,notes:$("notes").value.trim(),items:cart.map(l=>({id:l.source_product_id||l.productId,name:l.name,unit:l.unit,baseUnitPrice:l.baseUnitPrice,measure:l.measure,flavors:l.flavors,flavorSelections:l.flavorSelections||[],addons:l.addons,quantity:l.quantity,baseSubtotal:l.baseSubtotal,flavorExtra:l.flavorExtra,addonsTotal:l.addonsTotal,price:l.price,lineTotal:Number(l.price)*Number(l.quantity)})),subtotal:total,delivery_fee:0,total,status:"new"};
+  const btn=$("confirmOrder");btn.disabled=true;btn.textContent="ENVIANDO...";const {error}=await db.from("customer_orders").insert(payload);btn.disabled=false;btn.textContent="CONFIRMAR PEDIDO";if(error){console.error(error);err.textContent="Não foi possível enviar o pedido agora. Tente novamente.";return}lastOrderCode=String(orderId).slice(0,8).toUpperCase();$("orderCode").textContent=lastOrderCode;cart=[];saveCartLocal();updateCartBar();closeScreen("checkoutScreen");openScreen("successScreen")
 });
-$("newOrder").addEventListener("click",()=>location.reload());$("requestedDate").min=today();updateCartBar();loadStore();
+$("newOrder").addEventListener("click",()=>location.reload());$("requestedDate").min=today();loadCartLocal();updateCartBar();loadStore();
 </script>
 </body>
 </html>
