@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>GR Loja</title>
-<!-- GR Loja PRO Cliente: experiência guiada, filtros, ajuda e carrinho persistente -->
+<!-- GR Loja PRO Cliente: multifotos + experiência guiada + carrinho persistente -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b0d12;color:#f7f7f7}
@@ -67,6 +67,39 @@ body{background:radial-gradient(circle at top right,rgba(47,128,255,.08),transpa
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:#f8fafc;color:#111827;padding:11px 14px;border-radius:13px;font-weight:800;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:100;box-shadow:0 10px 35px rgba(0,0,0,.3)}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(max-width:430px){.guide-steps{gap:5px}.guide-step{padding:9px 5px}.hero{padding:17px}.hero h1{font-size:22px}.grid{gap:10px}.info{padding:11px}.detail-sticky{grid-template-columns:1fr 1.45fr}}
 
+
+/* ===== GALERIA MULTIFOTOS ===== */
+.detail-gallery-wrap{position:relative}
+.detail-photo{position:relative}
+.gallery-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.18);
+  background:rgba(8,11,18,.72);color:#fff;font-size:22px;display:grid;place-items:center;
+  backdrop-filter:blur(7px)
+}
+.gallery-arrow.prev{left:10px}.gallery-arrow.next{right:10px}
+.gallery-arrow[hidden]{display:none}
+.gallery-count{
+  position:absolute;right:10px;bottom:10px;padding:6px 9px;border-radius:999px;
+  background:rgba(8,11,18,.78);border:1px solid rgba(255,255,255,.14);
+  color:#fff;font-size:11px;font-weight:900;backdrop-filter:blur(7px)
+}
+.detail-thumbs{
+  display:flex;gap:8px;overflow:auto;padding:9px 1px 2px;scrollbar-width:none
+}
+.detail-thumbs::-webkit-scrollbar{display:none}
+.detail-thumb{
+  width:64px;height:64px;flex:0 0 64px;padding:0;border-radius:12px;overflow:hidden;
+  border:2px solid transparent;background:#121620
+}
+.detail-thumb.active{border-color:#3b82f6}
+.detail-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-count-badge{
+  position:absolute;right:9px;bottom:9px;background:rgba(11,13,18,.82);
+  color:#fff;border:1px solid rgba(255,255,255,.12);padding:5px 8px;
+  border-radius:999px;font-size:10px;font-weight:900;backdrop-filter:blur(7px)
+}
+
 </style>
 </head>
 <body>
@@ -107,7 +140,13 @@ body{background:radial-gradient(circle at top right,rgba(47,128,255,.08),transpa
   <div class="head"><button class="back" data-close="productScreen">←</button><div class="head-title"><h2>Monte seu produto</h2><small>Escolha exatamente como você quer</small></div></div>
   <div class="wrap">
     <div class="wizard"><span class="wizard-pill active">1 Quantidade</span><span class="wizard-pill active">2 Personalização</span><span class="wizard-pill active">3 Carrinho</span></div>
-    <div class="detail-photo" id="detailPhoto">📦</div>
+    <div class="detail-gallery-wrap">
+      <div class="detail-photo" id="detailPhoto">📦</div>
+      <button class="gallery-arrow prev" id="galleryPrev" type="button" aria-label="Foto anterior">‹</button>
+      <button class="gallery-arrow next" id="galleryNext" type="button" aria-label="Próxima foto">›</button>
+      <div class="gallery-count" id="galleryCount" hidden></div>
+    </div>
+    <div class="detail-thumbs" id="detailThumbs"></div>
     <h1 class="product-title" id="detailName"></h1>
     <div class="muted" id="detailDescription"></div>
     <div class="detail-badges"><span class="detail-badge" id="detailUnitBadge"></span><span class="detail-badge" id="detailCustomBadge" hidden>✨ Personalizável</span></div>
@@ -182,6 +221,8 @@ const ownerId=new URLSearchParams(location.search).get("loja");
 let products=[];
 let cart=[];
 let currentProduct=null;
+let currentProductImages=[];
+let currentProductImageIndex=0;
 let activeFilter="Todos";
 let lastOrderCode="";
 
@@ -202,7 +243,37 @@ function renderFilters(){
   if(!filters.includes(activeFilter))activeFilter="Todos";
   $("filterChips").innerHTML=filters.map(f=>`<button class="filter-chip ${f===activeFilter?"active":""}" data-filter="${esc(f)}">${esc(f)}</button>`).join("");
 }
+
 function opts(p){return p&&p.options&&typeof p.options==="object"?p.options:{}}
+function productImages(p){
+  const o=opts(p),list=[];
+  if(Array.isArray(o.images))list.push(...o.images);
+  if(p?.image)list.unshift(p.image);
+  return [...new Set(list.filter(x=>typeof x==="string"&&x.trim()))].slice(0,6);
+}
+function renderDetailGallery(){
+  const list=currentProductImages;
+  const idx=Math.max(0,Math.min(currentProductImageIndex,list.length-1));
+  currentProductImageIndex=idx;
+  if(!list.length){
+    $("detailPhoto").innerHTML="📦";
+    $("detailThumbs").innerHTML="";
+    $("galleryPrev").hidden=true;$("galleryNext").hidden=true;$("galleryCount").hidden=true;
+    return;
+  }
+  $("detailPhoto").innerHTML=`<img src="${esc(list[idx])}" alt="${esc(currentProduct?.name||"Produto")}">`;
+  const multi=list.length>1;
+  $("galleryPrev").hidden=!multi;$("galleryNext").hidden=!multi;
+  $("galleryCount").hidden=!multi;
+  if(multi)$("galleryCount").textContent=`${idx+1} / ${list.length}`;
+  $("detailThumbs").innerHTML=multi?list.map((src,i)=>`<button type="button" class="detail-thumb ${i===idx?"active":""}" data-gallery-index="${i}"><img src="${esc(src)}" alt="Foto ${i+1}"></button>`).join(""):"";
+}
+function changeGalleryPhoto(delta){
+  if(currentProductImages.length<2)return;
+  currentProductImageIndex=(currentProductImageIndex+delta+currentProductImages.length)%currentProductImages.length;
+  renderDetailGallery();
+}
+
 function unitDefaults(unit){return (unit==="Kg"||unit==="Litro")?{min:.5,max:20,step:.5}:{min:1,max:50,step:1}}
 function config(p){
   const o=opts(p),d=unitDefaults(p.unit);
@@ -238,12 +309,12 @@ function renderProducts(){
   });
   $("productCount").textContent=`${list.length} ${list.length===1?"produto":"produtos"}`;
   if(!list.length){$("products").innerHTML='<div class="empty" style="grid-column:1/-1"><div style="font-size:42px;margin-bottom:8px">🔎</div><b>Nenhum produto encontrado</b><div class="small" style="margin-top:5px">Tente outra busca ou outro filtro.</div></div>';return}
-  $("products").innerHTML=list.map(p=>{const c=config(p);return `<article class="card" data-product="${esc(p.id)}"><div class="photo">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}">`:"📦"}<span class="product-badge">${productBadge(p)}</span></div><div class="info"><div class="name">${esc(p.name)}</div>${p.description?`<div class="desc">${esc(p.description)}</div>`:""}<div class="card-meta"><span class="mini-tag">${esc(unitLabel(p.unit))}</span>${c.customizable?'<span class="mini-tag">Sabores / adicionais</span>':""}</div><div><div class="price-label">A partir de</div><div class="price">${money(p.price)}</div><div class="unit">por ${esc(unitLabel(p.unit))}${c.measureMin?` • mín. ${c.measureMin}`:""}</div></div><button class="open-product" type="button">VER E ESCOLHER</button></div></article>`}).join("");
+  $("products").innerHTML=list.map(p=>{const cfg=config(p),imgs=productImages(p),cover=imgs[0]||"";return `<article class="card" data-product="${esc(p.id)}"><div class="photo">${cover?`<img src="${esc(cover)}" alt="${esc(p.name)}">`:"📦"}<span class="product-badge">${productBadge(p)}</span>${imgs.length>1?`<span class="photo-count-badge">📷 ${imgs.length}</span>`:""}</div><div class="info"><div class="name">${esc(p.name)}</div>${p.description?`<div class="desc">${esc(p.description)}</div>`:""}<div class="card-meta"><span class="mini-tag">${esc(unitLabel(p.unit))}</span>${cfg.customizable?'<span class="mini-tag">Sabores / adicionais</span>':""}</div><div><div class="price-label">A partir de</div><div class="price">${money(p.price)}</div><div class="unit">por ${esc(unitLabel(p.unit))}${cfg.measureMin?` • mín. ${cfg.measureMin}`:""}</div></div><button class="open-product" type="button">VER E ESCOLHER</button></div></article>`}).join("");
 }
 
 function openProduct(p){
   currentProduct=p;const c=config(p);
-  $("detailPhoto").innerHTML=p.image?`<img src="${esc(p.image)}" alt="${esc(p.name||"Produto")}">`:"📦";$("detailName").textContent=p.name||"Produto";$("detailDescription").textContent=p.description||"";$("detailPrice").textContent=`${money(p.price)} por ${p.unit||"Unidade"}`;
+  currentProductImages=productImages(p);currentProductImageIndex=0;renderDetailGallery();$("detailName").textContent=p.name||"Produto";$("detailDescription").textContent=p.description||"";$("detailPrice").textContent=`${money(p.price)} por ${p.unit||"Unidade"}`;
   $("detailUnitBadge").textContent=`📏 Vendido por ${p.unit||"Unidade"}`;$("detailCustomBadge").hidden=!c.customizable;
   $("measureTitle").textContent=unitQuestion(p.unit||"Unidade");$("measureValue").min=c.measureMin;$("measureValue").max=c.measureMax;$("measureValue").step=c.measureStep;$("measureValue").value=c.measureMin;$("measureHint").textContent=`Mínimo ${c.measureMin} • Máximo ${c.measureMax} • De ${c.measureStep} em ${c.measureStep} ${p.unit||""}`;
   $("detailQty").value=1;$("detailError").textContent="";
@@ -299,6 +370,9 @@ $("continueShopping").addEventListener("click",()=>closeScreen("cartScreen"));
 $("copyOrderCode").addEventListener("click",async()=>{if(!lastOrderCode)return;try{await navigator.clipboard.writeText(lastOrderCode);toast("Código copiado") }catch(e){toast(`Código: ${lastOrderCode}`)}});
 $("whatsapp").addEventListener("input",e=>{let n=e.target.value.replace(/\D/g,"").slice(0,11);if(n.length>7)n=`(${n.slice(0,2)}) ${n.slice(2,n.length===11?7:6)}-${n.slice(n.length===11?7:6)}`;else if(n.length>2)n=`(${n.slice(0,2)}) ${n.slice(2)}`;e.target.value=n});
 $("products").addEventListener("click",e=>{const card=e.target.closest('[data-product]');if(!card)return;const p=products.find(x=>String(x.id)===card.dataset.product);if(p)openProduct(p)});
+$("galleryPrev").addEventListener("click",()=>changeGalleryPhoto(-1));
+$("galleryNext").addEventListener("click",()=>changeGalleryPhoto(1));
+$("detailThumbs").addEventListener("click",e=>{const b=e.target.closest("[data-gallery-index]");if(!b)return;currentProductImageIndex=Number(b.dataset.galleryIndex)||0;renderDetailGallery()});
 $("measureMinus").addEventListener("click",()=>changeMeasure(-1));$("measurePlus").addEventListener("click",()=>changeMeasure(1));$("measureValue").addEventListener("input",updateDetailTotal);$("detailQty").addEventListener("input",updateDetailTotal);$("detailQtyMinus").addEventListener("click",()=>{$("detailQty").value=Math.max(1,Number($("detailQty").value||1)-1);updateDetailTotal()});$("detailQtyPlus").addEventListener("click",()=>{$("detailQty").value=Math.max(1,Number($("detailQty").value||1)+1);updateDetailTotal()});
 $("flavorChoices").addEventListener("change",e=>{if(!currentProduct)return;const c=config(currentProduct),checked=selectedFlavors();if(checked.length>c.maxFlavors){e.target.checked=false;$("detailError").textContent=`Você pode escolher no máximo ${c.maxFlavors} sabores.`;toast(`Máximo de ${c.maxFlavors} sabores`)}else $("detailError").textContent="";updateDetailTotal()});$("addonChoices").addEventListener("change",updateDetailTotal);$("addConfigured").addEventListener("click",addCurrentToCart);
 $("openCart").addEventListener("click",()=>{renderCart();openScreen("cartScreen")});document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeScreen(b.dataset.close)));
